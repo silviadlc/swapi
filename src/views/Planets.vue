@@ -23,7 +23,11 @@
           single-line
         ></v-text-field>
       </v-card-title>
+      <Spinner 
+        v-if="loading"
+      />
       <v-data-table
+        v-if="!loading"
         class="px-10 w-80"
         :headers="headers"
         fixed-header
@@ -38,6 +42,7 @@
                 dark
                 x-small
                 color="grey"
+                @click="showItem(item)"
             >
                 <v-icon 
                     dark
@@ -54,22 +59,36 @@
     >
         <GoBack />
     </v-card-actions>
+    <dialog-details 
+      v-if="showDetails"
+      @close="showDetails = false"
+      :item="item"
+    />
   </v-card>
 </template>
 
 <script>
-import axios from 'axios'
+import ApiService from '@/services/api.service'
 import GoBack from '@/components/GoBack'
+import PlanetsDetails from '../components/PlanetsDetails.vue'
+import Spinner from '@/components/Spinner'
+
 
   export default {
     name: 'Planets',
     components: {
-        GoBack
+        GoBack,
+        Spinner,
+        'dialog-details': PlanetsDetails
+        
     },
     data: () => ({
       search: '',
       results: [],
-      title:'PLANETS'
+      showDetails: false,
+      title:'PLANETS',
+      item: {},
+      loading: false
     }),
 
     computed: {
@@ -97,12 +116,24 @@ import GoBack from '@/components/GoBack'
           typeof value === 'string' &&
           value.toString().toLocaleLowerCase().indexOf(search) !== -1
       },
+
+      showItem (item) {
+          this.item = item
+          this.showDetails = true
+      },
+
     },
 
     mounted () {
-      axios.get('https://swapi.dev/api/planets').then((response) => {
+      this.loading = true //the loading begin
+
+      ApiService.get('planets').then((response) => {
+        this.loading = false //the loading stop when the response given from server
         this.results = response.data.results
-      })
+      }).catch(e =>  {
+          this.loading = false
+          alert('UPS! Something is wrong.')
+        })
     }
   }
 </script>

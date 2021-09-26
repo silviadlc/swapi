@@ -21,7 +21,11 @@
           single-line
         ></v-text-field>
       </v-card-title>
+      <Spinner 
+        v-if="loading"
+      />
       <v-data-table
+        v-if="!loading"
         class="px-10 w-80"
         :headers="headers"
         fixed-header
@@ -56,27 +60,33 @@
     <dialog-details 
       v-if="showDetails"
       @close="showDetails = false"
+      :item="item"
     />
   </v-card>
 </template>
 
 <script>
-import axios from 'axios'
+import ApiService from '@/services/api.service'
 import GoBack from '@/components/GoBack'
-import DialogDetails from '../components/DialogDetails.vue'
+import PeopleDetails from '../components/PeopleDetails.vue'
+import Spinner from '@/components/Spinner'
+
 
   export default {
     name: 'People',
     components: {
         GoBack,
-        'dialog-details': DialogDetails
+        Spinner,
+        'dialog-details': PeopleDetails
+        
     },
     data: () => ({
       results: [],
       search: '',
       showDetails: false,
       title:'PEOPLE',
-      item: ''
+      item: {},
+      loading: false
     }),
 
     computed: {
@@ -105,17 +115,22 @@ import DialogDetails from '../components/DialogDetails.vue'
       },
 
       showItem (item) {
-          this.item = this.results.indexOf(item)
-          console.log(item.name)
+          this.item = item
           this.showDetails = true
       },
   
     },
 
     mounted () {
-      axios.get('https://swapi.dev/api/people').then((response) => {
+      this.loading = true //the loading begin
+
+      ApiService.get('people').then((response) => {
+        this.loading = false //the loading stop when the response given from server
         this.results = response.data.results
-      })
-    }
+      }).catch(e =>  {
+          this.loading = false
+          alert('UPS! Something is wrong.')
+        })
+      }
   }
 </script>

@@ -3,6 +3,7 @@
 ## Installation
 ```
 https://github.com/silviadlc/swapi.git
+```
 
 ## Project setup
 ```

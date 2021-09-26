@@ -2,7 +2,7 @@
 
 ## Installation
 ```
-https://github.com/silviadlc/swapi.git
+git clone https://github.com/silviadlc/swapi.git
 ```
 
 ## Project setup
